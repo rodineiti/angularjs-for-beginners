@@ -1,0 +1,5 @@
+[
+    {"id": 1, "completed": true, "name": "item 1", "date": "2019-06-21"},
+    {"id": 2, "completed": false, "name": "item 2", "date": "2019-06-21"},
+    {"id": 3, "completed": true, "name": "item 3", "date": "2019-06-20"}
+]
