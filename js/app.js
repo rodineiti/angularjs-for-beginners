@@ -19,18 +19,17 @@ app.config(function($routeProvider) {
 		});
 });
 
-app.service("GroceryService", function($http) {
-	var groceryService = [];
+app.service("TodoService", function($http) {
+	var todoService = [];
 
-	groceryService.groceryItems = [];
+	todoService.todoItems = [];
 
 	$http.get("data/server_data.json")
 		.success(function(data) {
-			console.log(data);
-			groceryService.groceryItems = data;
+			todoService.todoItems = data;
 
-			for(var item in groceryService.groceryItems) {
-				groceryService.groceryItems[item].date = new Date(groceryService.groceryItems[item].date);
+			for(var item in todoService.todoItems) {
+				todoService.todoItems[item].date = new Date(todoService.todoItems[item].date);
 			}
 		})
 		.error(function(data, status) {
@@ -39,39 +38,38 @@ app.service("GroceryService", function($http) {
 			alert("Erro");
 		});
 
-	groceryService.findById = function(id) {
-		for (var item in groceryService.groceryItems) {
-			if (groceryService.groceryItems[item].id === id) {
-				return groceryService.groceryItems[item];
+	todoService.findById = function(id) {
+		for (var item in todoService.todoItems) {
+			if (todoService.todoItems[item].id === id) {
+				return todoService.todoItems[item];
 			}
 		}
 	};
 
-	groceryService.getNewId = function() {
-		if (groceryService.newId) {
-			groceryService.newId++;
-			return groceryService.newId;
+	todoService.getNewId = function() {
+		if (todoService.newId) {
+			todoService.newId++;
+			return todoService.newId;
 		} else {
-			var maxId = _.max(groceryService.groceryItems, function(entry){
-				return entry.id;
+			var maxId = _.max(todoService.todoItems, function(item){
+				return item.id;
 			});
-			groceryService.newId = maxId.id + 1;
-			return groceryService.newId;
+			todoService.newId = maxId.id + 1;
+			return todoService.newId;
 		}
 	};
 
-	groceryService.save = function(entry) {
-		var updateItem = groceryService.findById(entry.id);
+	todoService.save = function(item) {
+		var updateItem = todoService.findById(item.id);
 
 		if (updateItem) {
 
-			$http.post("data/updated_item.json", entry)
+			$http.post("data/updated_item.json", item)
 				.success(function(data) {
-					console.log(data.status)
 					if (data.status == 1) {
-						updateItem.completed = entry.completed;
-						updateItem.name = entry.name;
-						updateItem.date = entry.date;
+						updateItem.completed = item.completed;
+						updateItem.name = item.name;
+						updateItem.date = item.date;
 					}
 				})
 				.error(function(data, status) {
@@ -81,9 +79,9 @@ app.service("GroceryService", function($http) {
 				});
 		} else {
 
-			$http.post("data/added_item.json", entry)
+			$http.post("data/added_item.json", item)
 				.success(function(data) {
-					entry.id = data.newId;
+					item.id = data.newId;
 				})
 				.error(function(data, status) {
 					console.log(data);
@@ -91,17 +89,16 @@ app.service("GroceryService", function($http) {
 					alert("Erro");
 				});
 
-			//entry.id = groceryService.getNewId();
-			groceryService.groceryItems.push(entry);
+			todoService.todoItems.push(item);
 		}
 	};
 
-	groceryService.removeItem = function(entry) {
-		$http.post("data/deleted_item.json", {id: entry.id})
+	todoService.removeItem = function(item) {
+		$http.post("data/deleted_item.json", {id: item.id})
 			.success(function(data) {
 				if (data.status == 1) {
-					var index = groceryService.groceryItems.indexOf(entry);
-					groceryService.groceryItems.splice(index, 1);	
+					var index = todoService.todoItems.indexOf(item);
+					todoService.todoItems.splice(index, 1);	
 				}
 			})
 			.error(function(data, status) {
@@ -111,44 +108,44 @@ app.service("GroceryService", function($http) {
 			});
 	}
 
-	groceryService.markComplete = function(entry) {
-		entry.completed = !entry.completed;
+	todoService.markComplete = function(item) {
+		item.completed = !item.completed;
 	};
 
-	return groceryService;
+	return todoService;
 });
 
-app.controller("HomeController", ["$scope", "GroceryService", function($scope, GroceryService) {
-  $scope.appTitle = 'Grocery App';
-  $scope.groceryItems = GroceryService.groceryItems;
+app.controller("HomeController", ["$scope", "TodoService", function($scope, TodoService) {
+  $scope.appTitle = 'Todo App';
+  $scope.todoItems = TodoService.todoItems;
 
-  $scope.removeItem = function(entry) {
-  	GroceryService.removeItem(entry);
+  $scope.removeItem = function(item) {
+  	TodoService.removeItem(item);
   };
 
-  $scope.markComplete = function(entry) {
-  	GroceryService.markComplete(entry);
+  $scope.markComplete = function(item) {
+  	TodoService.markComplete(item);
   };
 
   $scope.$watch(function() {
-  	return GroceryService.groceryItems;
-  }, function(groceryItem) {
-  	$scope.groceryItems = groceryItem;
+  	return TodoService.todoItems;
+  }, function(todoItem) {
+  	$scope.todoItems = todoItem;
   });
 }]);
 
-app.controller("ListItemsController", ["$scope", "$routeParams", "$location", "GroceryService", function($scope, $routeParams, $location, GroceryService) {
+app.controller("ListItemsController", ["$scope", "$routeParams", "$location", "TodoService", function($scope, $routeParams, $location, TodoService) {
 
 	if (!$routeParams.id) {
-		$scope.groceryItem = {
+		$scope.todoItem = {
   			id: 0, completed: false, name: '', date: new Date()
   		};
 	} else {
-		$scope.groceryItem = _.clone(GroceryService.findById(parseInt($routeParams.id)));
+		$scope.todoItem = _.clone(TodoService.findById(parseInt($routeParams.id)));
 	}
 
   	$scope.save = function() {
-  		GroceryService.save($scope.groceryItem);
+  		TodoService.save($scope.todoItem);
   		$location.path("/");
   	};
 
@@ -156,7 +153,7 @@ app.controller("ListItemsController", ["$scope", "$routeParams", "$location", "G
 
 }]);
 
-app.directive("tbGroceryItem", function() {
+app.directive("tbTodoItem", function() {
 	return {
 		restrict: "E",
 		templateUrl: "item.html"

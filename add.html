@@ -2,23 +2,23 @@
     <div class="jumbotron text-center">
         <h1>Add Item</h1>
     </div>
-    <form name="groceryForm">
-        <p><b>Dirty:</b> {{groceryForm.$dirty}}</p>
-        <p><b>Pristine:</b> {{groceryForm.$pristine}}</p>
-        <p><b>Valid:</b> {{groceryForm.$valid}}</p>
+    <form name="todoForm">
+        <p><b>Dirty:</b> {{todoForm.$dirty}}</p>
+        <p><b>Pristine:</b> {{todoForm.$pristine}}</p>
+        <p><b>Valid:</b> {{todoForm.$valid}}</p>
 
-        <div class="alert alert-danger" ng-show="groceryForm.$dirty && !groceryForm.$valid">
+        <div class="alert alert-danger" ng-show="todoForm.$dirty && !todoForm.$valid">
             <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
             <span class="sr-only">Error:</span>
-            Enter a valid grocery item!
+            Enter a valid todo item!
         </div>
 
         <div class="form-group">
-            <input type="text" class="form-control" placeholder="Item" ng-model="groceryItem.name" ng-pattern="/^[a-zA-Z]*$/" required>
+            <input type="text" class="form-control" placeholder="Item" ng-model="todoItem.name" required>
         </div>
 
         <div class="form-group">
-            <button type="button" class="btn btn-success btn-lg btn-block" ng-click="groceryForm.$valid && save()" ng-disabled="!groceryForm.$valid">
+            <button type="button" class="btn btn-success btn-lg btn-block" ng-click="todoForm.$valid && save()" ng-disabled="!todoForm.$valid">
                 <span class="glyphicon glyphicon-pushpin"></span>
                 Save
             </button>
